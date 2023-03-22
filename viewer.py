@@ -57,6 +57,8 @@ def main():
     # default color shader
     shader = Shader("color.vert", "color.frag")
 
+    viewer.add(*load('volcano.obj', shader))
+    
     # place instances of our basic objects
     viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader)])
     if len(sys.argv) < 2:
