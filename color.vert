@@ -1,25 +1,22 @@
 #version 330 core
 
-// global color
-uniform vec3 global_color;
-
 // input attribute variable, given per vertex
 in vec3 position;
-in vec3 color;
 in vec3 normal;
 
-// global matrix variables
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 model, view, projection;
 
-// interpolated color for fragment shader, intialized at vertices
-out vec3 fragment_color;
+// position and normal for the fragment shader, in WORLD coordinates
+out vec3 w_position, w_normal;   // in world coordinates
 
 void main() {
-    // initialize interpolated colors at vertices
-    fragment_color = color + normal + global_color;
+    vec4 w_position4 = model * vec4(position, 1.0);
+    gl_Position = projection * view * w_position4;
 
-    // tell OpenGL how to transform the vertex to clip coordinates
-    gl_Position = projection * view * model * vec4(position, 1);
+    // fragment position in world coordinates
+    w_position = w_position4.xyz / w_position4.w;  // dehomogenize
+
+    // fragment normal in world coordinates
+    mat3 nit_matrix = transpose(inverse(mat3(model)));
+    w_normal = normalize(nit_matrix * normal);
 }
