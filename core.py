@@ -278,9 +278,9 @@ def load(file, shader, tex_file=None, **params):
         # initialize mesh with args from file, merge and override with params
         index = mesh.mFaces
         uniforms = dict(
-            k_d=mat.get('COLOR_DIFFUSE', (1, 1, 1)),
-            k_s=mat.get('COLOR_SPECULAR', (1, 1, 1)),
-            k_a=mat.get('COLOR_AMBIENT', (0, 0, 0)),
+            k_d=mat.get('COLOR_DIFFUSE', (.31, .21, .1)),
+            k_s=mat.get('COLOR_SPECULAR', (.3, .5,.6)),
+            k_a=mat.get('COLOR_AMBIENT', (.5, 0.3, .4)),
             s=mat.get('SHININESS', 16.),
         )
         attributes = dict(
