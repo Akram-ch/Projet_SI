@@ -21,6 +21,7 @@ uniform vec3 w_camera_position;
 
 // fragment texture plane coordinates
 in vec2 frag_tex_coords;
+in float visibility;
 
 // output fragment color for OpenGL
 out vec4 out_color;
@@ -29,6 +30,7 @@ void main() {
     // TODO: compute Lambert illumination
     // I = max (k_d (light_dir . w_normal) , 0 )
     // normalize(I)
+    vec3 fogColor = vec3(0.5, 0.5, 0.5);
 
     // dot product
     float scal = dot(light_dir, w_normal);
@@ -56,5 +58,5 @@ void main() {
 
     
     out_color += pow(dot(reflect (w_normal, -light_dir), w_camera_position), s) * vec4(k_s,1) + vec4(k_a,1);
-
+    out_color = mix(vec4(fogColor, 1.0), out_color, visibility);
 }
