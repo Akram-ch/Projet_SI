@@ -4,7 +4,8 @@ from itertools import cycle
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import glfw                         # lean window system wrapper for OpenGL
 import numpy as np                  # all matrix manipulations & OpenGL args
-from core import Shader, Viewer, Mesh, load
+from core import Shader, Viewer, Mesh, Node, load
+from transform import translate, identity, rotate, scale
 from texture import Texture, Textured
 
 
@@ -39,6 +40,10 @@ class TexturedPlane(Textured):
             texture = Texture(self.file, self.wrap, *self.filter)
             self.textures.update(diffuse_map=texture)
 
+class Volcano(Node):
+    def __init__(self, shader, light_dir):
+        super().__init__()
+        self.add(*load('volcano-3d-model/Volcano.obj', shader, light_dir=light_dir))
 
 # -------------- main program and scene setup --------------------------------
 def main():
@@ -47,12 +52,21 @@ def main():
     shader = Shader("texture.vert", "texture.frag")
 
     light_dir = (1, 1, -1)
-    viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
+    # viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
 
-    if len(sys.argv) != 2:
-        print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
-              ' format supported by assimp.' % (sys.argv[0],))
-        viewer.add(TexturedPlane(shader, "volcano-3d-model/Volcano_texture.png"))
+    volc1 = Volcano(shader, light_dir)
+    
+    transf = Node(transform=translate(5, 0, 5) @ scale(.5, .5, .5))
+    transf.add(volc1)
+    # base_shape = Node(transform=scale(.5, .1, .5))
+    # base_shape.add(volc)
+    viewer.add(volc1)
+    viewer.add(transf)
+
+    # if len(sys.argv) != 2:
+    #     print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
+    #           ' format supported by assimp.' % (sys.argv[0],))
+    #     viewer.add(TexturedPlane(shader, "volcano-3d-model/Volcano_texture.png"))
 
     # start rendering loop
     viewer.run()
