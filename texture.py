@@ -1,5 +1,6 @@
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 from PIL import Image               # load texture maps
+from core import Mesh
 
 
 # -------------- OpenGL Texture Wrapper ---------------------------------------
@@ -35,7 +36,7 @@ class Texture:
 # -------------- Textured mesh decorator --------------------------------------
 class Textured:
     """ Drawable mesh decorator that activates and binds OpenGL textures """
-    def __init__(self, drawable, **textures):
+    def __init__(self, drawable : Mesh, **textures):
         self.drawable = drawable
         self.textures = textures
 

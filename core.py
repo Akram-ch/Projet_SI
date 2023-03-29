@@ -177,7 +177,7 @@ class Node:
 
     def draw(self, model=identity(), **other_uniforms):
         """ Recursive draw, passing down updated model matrix. """
-        self.world_transform = identity()   # TODO: compute model matrix
+        self.world_transform = model @ self.transform
         for child in self.children:
             child.draw(model=self.world_transform, **other_uniforms)
 
@@ -278,9 +278,9 @@ def load(file, shader, tex_file=None, **params):
         # initialize mesh with args from file, merge and override with params
         index = mesh.mFaces
         uniforms = dict(
-            k_d=mat.get('COLOR_DIFFUSE', (.31, .21, .1)),
-            k_s=mat.get('COLOR_SPECULAR', (.3, .5,.6)),
-            k_a=mat.get('COLOR_AMBIENT', (.5, 0.3, .4)),
+            k_d=mat.get('COLOR_DIFFUSE', (1, 1, 1)),
+            k_s=mat.get('COLOR_SPECULAR', (1, 1, 1)),
+            k_a=mat.get('COLOR_AMBIENT', (0, 0, 0)),
             s=mat.get('SHININESS', 16.),
         )
         attributes = dict(
