@@ -59,7 +59,7 @@ def main():
     
     light_dir = (0, -1, 0)
 
-    viewer.add(*load('volcano.obj', shader, light_dir=light_dir, K_d=(.6, .7, .8), s=100))
+    viewer.add(*load('volcano-3d-model/Volcano.obj', shader, light_dir=light_dir, K_d=(.6, .7, .8), s=100))
     
     # place instances of our basic objects
     viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader)])
