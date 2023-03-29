@@ -52,7 +52,7 @@ def main():
     if len(sys.argv) != 2:
         print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
               ' format supported by assimp.' % (sys.argv[0],))
-        viewer.add(TexturedPlane(shader, "grass.png"))
+        viewer.add(TexturedPlane(shader, "volcano-3d-model/Volcano_texture.png"))
 
     # start rendering loop
     viewer.run()
