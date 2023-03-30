@@ -40,10 +40,16 @@ class TexturedPlane(Textured):
             texture = Texture(self.file, self.wrap, *self.filter)
             self.textures.update(diffuse_map=texture)
 
+class Terrain(Node):
+    def __init__(self, shader, light_dir):
+        super().__init__()
+        self.add(*load('terrain/terobj.obj', shader, light_dir=light_dir))
+
 class Volcano(Node):
     def __init__(self, shader, light_dir):
         super().__init__()
         self.add(*load('volcano-3d-model/Volcano.obj', shader, light_dir=light_dir))
+        
 
 # -------------- main program and scene setup --------------------------------
 def main():
@@ -53,15 +59,25 @@ def main():
 
     light_dir = (1, 1, -1)
     # viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
+    # t = Terrain(shader, light_dir)
+    # viewer.add(t)
 
-    volc1 = Volcano(shader, light_dir)
-    
-    transf = Node(transform=translate(5, 0, 5) @ scale(.5, .5, .5))
-    transf.add(volc1)
-    # base_shape = Node(transform=scale(.5, .1, .5))
-    # base_shape.add(volc)
-    viewer.add(volc1)
-    viewer.add(transf)
+    # Terrain
+
+    ter = Terrain(shader, light_dir)
+    ter_transf = Node(transform=translate(.0, .0, -2) @ rotate(axis=(1., 0., 0.), angle=-90.0) @ scale(5, 5, 5))
+    ter_transf.add(ter)
+
+    volc = Volcano(shader, light_dir)
+    volc_transf_1 = Node(transform=scale(.1, .1, .1) @ translate(-8, -9, -2))
+    volc_transf_1.add(volc)
+
+    base = Node()
+    base.add(ter_transf)
+    base.add(volc_transf_1)
+
+
+    viewer.add(base)
 
     # if len(sys.argv) != 2:
     #     print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
