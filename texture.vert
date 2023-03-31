@@ -11,9 +11,14 @@ uniform mat4 model, view, projection;
 out vec2 frag_tex_coords;
 // position and normal for the fragment shader, in WORLD coordinates
 out vec3 w_position, w_normal;   // in world coordinates
+out float visibility;
+
+const float density = 0.09;
+const float gradient = 1.5;
 
 void main() {
     vec4 w_position4 = model * vec4(position, 1.0);
+    vec4 positionRelativeToCam = view * vec4(w_position, 1.0);
     gl_Position = projection * view * w_position4;
 
     // fragment position in world coordinates
@@ -23,4 +28,7 @@ void main() {
     mat3 nit_matrix = transpose(inverse(mat3(model)));
     w_normal = normalize(nit_matrix * normal);
     frag_tex_coords = tex_coord.xy;
+
+    float distance = length(positionRelativeToCam.xyz);
+    visibility = exp(-pow((distance*density), gradient));
 }

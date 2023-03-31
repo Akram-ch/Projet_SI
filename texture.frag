@@ -4,6 +4,8 @@ in vec2 frag_tex_coords;
 // fragment position and normal of the fragment, in WORLD coordinates
 in vec3 w_position, w_normal;
 
+in float visibility;
+
 // Sampler2D is a GLSL unique type associated to a complete texture format
 uniform sampler2D diffuse_map;
 
@@ -13,6 +15,7 @@ uniform vec3 light_dir;
 uniform vec3 k_d, k_a, k_s;
 uniform float s;
 
+
 // world camera position
 uniform vec3 w_camera_position;
 
@@ -20,6 +23,7 @@ out vec4 out_color;
 
 void main() {
     float scal = dot(light_dir, w_normal);
+    vec3 skyColor = vec3(0.5, 0.5, 0.5);
     // max
     scal = max(scal, 0);
 
@@ -34,4 +38,5 @@ void main() {
     
     // out_color = vec4(k_a, 1) + vec4(diffuse_color, 1) + vec4(specular_color, 1);
     out_color = vec4(k_a, 1) + (scal * vec4(texture(diffuse_map, frag_tex_coords).rgb, 1)) + vec4(specular_color, 1);
+    out_color = mix(vec4(skyColor, 1.0),out_color, visibility);
 }

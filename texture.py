@@ -29,9 +29,50 @@ class Texture:
         except FileNotFoundError:
             print("ERROR: unable to load texture file %s" % tex_file)
 
+
+
+
     def __del__(self):  # delete GL texture from GPU when object dies
         GL.glDeleteTextures(self.glid)
 
+class CubeMapTexture:
+    def __init__(self, filenames, wrap_mode=GL.GL_CLAMP_TO_EDGE,
+                 mag_filter=GL.GL_LINEAR, min_filter=GL.GL_LINEAR_MIPMAP_LINEAR,
+                 tex_type=GL.GL_TEXTURE_CUBE_MAP):
+        self.glid = GL.glGenTextures(1)
+        self.type = tex_type
+
+        # Load the six textures of the cube map
+        
+        for i, filename in enumerate(filenames):
+            image = Image.open(filename).convert('RGBA')
+            GL.glBindTexture(self.type, self.glid)
+            GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.GL_SRGB_ALPHA, image.width, image.height,
+                            0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image.tobytes())
+            GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+            GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+            GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
+            GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+            GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE);
+   
+    
+    def __del__(self):  # delete GL texture from GPU when object dies
+        GL.glDeleteTextures(self.glid)
+        
+        
+class CubeMapTextured:
+    def __init__(self, drawable, **textures):
+        self.drawable = drawable
+        self.textures = textures
+
+    def draw(self, primitives=GL.GL_TRIANGLES, **uniforms):
+        GL.glDepthFunc(GL.GL_LEQUAL);  # change depth function so depth test passes when values are equal to depth buffer's content
+        for index, (name, texture) in enumerate(self.textures.items()):
+            GL.glActiveTexture(GL.GL_TEXTURE0 + index)
+            GL.glBindTexture(texture.type, texture.glid)
+            uniforms[name] = index
+        self.drawable.draw(primitives=primitives, **uniforms)
+        GL.glDepthFunc(GL.GL_LESS); # set depth function back to default
 
 # -------------- Textured mesh decorator --------------------------------------
 class Textured:
