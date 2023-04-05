@@ -13,7 +13,7 @@ out vec2 frag_tex_coords;
 out vec3 w_position, w_normal;   // in world coordinates
 out float visibility;
 
-const float density = 0.00;
+const float density = 0.07;
 const float gradient = 1.5;
 
 void main() {

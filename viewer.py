@@ -7,9 +7,10 @@ import PIL.Image as Image
 import glfw                         # lean window system wrapper for OpenGL
 import numpy as np                  # all matrix manipulations & OpenGL args
 from core import Shader, Viewer, Mesh, Node, load
-from transform import translate, identity, rotate, scale
+from transform import *
 from texture import Texture, Textured
 from texture import *
+from animation import *
 
 
 # -------------- Example textured plane class ---------------------------------
@@ -59,6 +60,17 @@ class Volcano(Node):
         self.add(*load('volcano-3d-model/Volcano.obj', shader, light_dir=light_dir))
         
 
+class Cylinder(Node):
+    """ Very simple cylinder based on provided load function """
+    def __init__(self, shader):
+        super().__init__()
+        self.add(*load('cylinder.obj', shader))  # just load cylinder from file
+
+class Monkey(Node):
+    def __init__(self, shader):
+        super().__init__()
+        self.add(*load('suzanne.obj', shader))
+    
 class Skybox(CubeMapTextured):
     """ True skybox that is perceived at infinity """
 
@@ -121,7 +133,16 @@ def main():
     base.add(volc_transf_1)
 
 
+    translate_keys = {0: vec(0, -.50, 0), 2: vec(1, -.5, 0), 6: vec(0, -.5, 0)}
+    rotate_keys = {0: quaternion(), 2: quaternion_from_euler(180, 45, 90),
+                   3: quaternion_from_euler(180, 0, 180), 6: quaternion()}
+    scale_keys = {0: .1, 2: 0.2, 6: .3}
+    keynode = KeyFrameControlNode(translate_keys, rotate_keys, scale_keys)
+    keynode.add(Monkey(shader))
+    base.add(keynode)
+
     viewer.add(base)
+    
 
     # if len(sys.argv) != 2:
     #     print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'

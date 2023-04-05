@@ -1,4 +1,3 @@
-# Python built-in modules
 from bisect import bisect_left      # search sorted keyframe lists
 
 # External, non built-in modules
@@ -22,33 +21,33 @@ class KeyFrames:
         self.interpolate = interpolation_function
 
     def value(self, time):
-            """ Computes interpolated value from keyframes, for a given time """
+        """ Computes interpolated value from keyframes, for a given time """
 
-            # 1. ensure time is within bounds else return boundary keyframe
-            if time <= self.times[0]:
-                return self.values[0]
-            if time >= self.times[-1]:
-                return self.values[-1]
+        # 1. ensure time is within bounds else return boundary keyframe
+        time = max(min(time, self.times[-1]), self.times[0])
 
-            # 2. search for closest index entry in self.times, using bisect_left function
-            t_i = bisect_left(self.times, time) - 1     # note the -1
+        # 2. search for closest index entry in self.times, using bisect_left
+        index = bisect_left(self.times, time)
 
-            # 3. using the retrieved index, interpolate between the two neighboring values
-            # in self.values, using the initially stored self.interpolate function
-            f = (time - self.times[t_i]) / (self.times[t_i + 1] - self.times[t_i])
-            return self.interpolate(self.values[t_i], self.values[t_i + 1], f)
+        # 3. using the retrieved index, interpolate between the two neighboring
+        # values in self.values, using the stored self.interpolate function
+        return self.interpolate(self.values[index - 1], self.values[index], (time - self.times[index - 1]) / (self.times[index] - self.times[index - 1]))
 
 
 class TransformKeyFrames:
     """ KeyFrames-like object dedicated to 3D transforms """
     def __init__(self, translate_keys, rotate_keys, scale_keys):
         """ stores 3 keyframe sets for translation, rotation, scale """
-        ...
+        self.translate_keys = KeyFrames(translate_keys)
+        self.rot_keys = KeyFrames(rotate_keys,quaternion_slerp)
+        self.scale_keys = KeyFrames(scale_keys)
 
     def value(self, time):
         """ Compute each component's interpolation and compose TRS matrix """
-        ...
-        return identity()
+        T = translate( self.translate_keys.value(time))
+        R = quaternion_matrix(self.rot_keys.value(time))    
+        S = scale(self.scale_keys.value(time))
+        return T @ R @ S
 
 
 class KeyFrameControlNode(Node):
@@ -61,19 +60,3 @@ class KeyFrameControlNode(Node):
         """ When redraw requested, interpolate our node transform from keys """
         self.transform = self.keyframes.value(glfw.get_time())
         super().draw(primitives=primitives, **uniforms)
-
-
-# -------------- Linear Blend Skinning : TP7 ---------------------------------
-class Skinned:
-    """ Skinned mesh decorator, passes bone world transforms to shader """
-    def __init__(self, mesh, bone_nodes, bone_offsets):
-        self.mesh = mesh
-
-        # store skinning data
-        self.bone_nodes = bone_nodes
-        self.bone_offsets = np.array(bone_offsets, np.float32)
-
-    def draw(self, **uniforms):
-        world_transforms = [node.world_transform for node in self.bone_nodes]
-        uniforms['bone_matrix'] = world_transforms @ self.bone_offsets
-        self.mesh.draw(**uniforms)
