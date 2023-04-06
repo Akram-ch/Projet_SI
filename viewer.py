@@ -85,9 +85,9 @@ class Player(Node):
 
 class Cylinder(Node):
     """ Very simple cylinder based on provided load function """
-    def __init__(self, shader):
+    def __init__(self, shader, light_dir):
         super().__init__()
-        self.add(*load('cylinder.obj', shader))  # just load cylinder from file
+        self.add(*load('cylinder.obj', shader, light_dir=light_dir))  # just load cylinder from file
 
 class Monkey(Node):
     def __init__(self, shader, light_dir):
@@ -144,32 +144,59 @@ def main():
     # Terrain
 
     ter = Terrain(shader, light_dir)
-    ter_transf = Node(transform=translate(.0, .0, -2) @ rotate(axis=(1., 0., 0.), angle=-90.0) @ scale(5, 5, 5))
+    ter_transf = Node(transform=translate(.0, .0, -2) @ rotate(axis=(1., 0., 0.), angle=-90.0) @ scale(20,20,20))
     ter_transf.add(ter)
 
+    # Volcano
     volc = Volcano(shader, light_dir)
-    volc_transf_1 = Node(transform=scale(.2, .2, .2) @ translate(-8, -9, -2))
+    volc_transf_1 = Node(transform=scale(.1, .1, .1) @ translate(-8, -9, -2))
+    # volc_transf_1 = Node(transform=scale(.2, .2, .2) @ translate(-8, -9, -2))
     volc_transf_1.add(volc)
+
+    # Lava
+    lava = Cylinder(shader, light_dir)
+    lava_transf = Node(transform=translate(.0, 4.2, -.2) @ scale(.6, .005, .6))
+    # lava_transf = Node(transform=translate(-0.8, -0.51, -0.22) @ scale(.08, .005, .08))
+    lava_transf.add(lava)
+
+    volc_transf_1.add(lava_transf)
+
+    # Volcano base
+    volcano_base = Node(transform=translate(1, 1, .0) @ scale(5,5,5))
+    volcano_base.add(volc_transf_1)
+    # volcano_base.add(lava_transf)
+
+
+    translate_keys = {0: vec(0,0,0), 6: vec(0,0,0), 8: vec(0,0.3,0), 
+                    10: vec(0, .6, 0), 12: vec(0, .9, 0)}
+    rotate_keys = {0: quaternion(), 6: quaternion(), 8: quaternion_from_euler(0, 0,0),
+                   10: quaternion_from_euler(0, 0, 0), 12: quaternion()}
+    # rotate_keys = {}
+    scale_keys = {0: 1, 6: 1, 8: 1, 10: 1, 12: 1}
+    # translate_keys = {0: vec(0, -.50, 0), 2: vec(0, 0, 0), 6: vec(0, 1, 0)}
+    # rotate_keys = {0: quaternion(), 2: quaternion_from_euler(180, 45, 90),
+    #                3: quaternion_from_euler(180, 0, 180), 6: quaternion()}
+    # scale_keys = {0: .1, 2: 0.2, 6: .3}
+    keynode = KeyFrameControlNode(translate_keys, rotate_keys, scale_keys, transform=scale(.1 , .1, .1))
+    
+    monkey = Monkey(shader, light_dir)
+    monkey_transf = Node(transform=translate(-0.8, -0.7, -0.2) @ scale(.05,.05,.05))
+    # monkey_transf = Node()
+    monkey_transf.add(monkey)
+    keynode.add(monkey_transf)
+    # keynode.add(Monkey(shader, light_dir))
+    # base.add(keynode)
+    volcano_base.add(keynode)
+    # 
+    base = Node()
+    base.add(ter_transf)
+    base.add(volcano_base)
 
     player = Player(shader, light_dir)
     player_transf = Node(transform=translate(.0, -.6, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
     player_transf.add(player)
   
-    base = Node()
-    base.add(ter_transf)
-    base.add(volc_transf_1)
     
-    
-
-
-    translate_keys = {0: vec(0, -.50, 0), 2: vec(0, 0, 0), 6: vec(0, 1, 0)}
-    rotate_keys = {0: quaternion(), 2: quaternion_from_euler(180, 45, 90),
-                   3: quaternion_from_euler(180, 0, 180), 6: quaternion()}
-    scale_keys = {0: .1, 2: 0.2, 6: .3}
-    keynode = KeyFrameControlNode(translate_keys, rotate_keys, scale_keys, transform=scale(.1 , .1, .1))
-    keynode.add(Monkey(shader, light_dir))
-    base.add(keynode)
-
     viewer.add(base)
     viewer.add(player_transf)    
 
