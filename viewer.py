@@ -88,76 +88,96 @@ class Player(Node):
 
         else:
             self.transform=self.transform
+
+class Pyramid(Mesh):
+    """ Class for drawing a pyramid object """
+
+    def __init__(self, shader):
+        y = -3.5
+        edge = 8
+        position = np.array(((-edge, y, edge), (-edge, y, -edge), (edge, y, edge), (edge, y, -edge), (0, y, 0)), 'f')
+        col = (202/256,20/256,31/256)
+        color = np.array((col, col, col, col, col), 'f')
+        # 226,135,67
+        index = np.array((0,1,2,2,1,3,4,1,0,4,3,1,4,2,3,4,0,2), np.uint32)
+        attributes = dict(position=position, color=color)
+        # attributes = dict(position=position, color=color)
+        super().__init__(shader, attributes=attributes, index=index)
+
+    def draw(self, primitives=GL.GL_TRIANGLES, attributes=None, **uniforms):
+        return super().draw(primitives, attributes, **uniforms)
         
-# class Cylinder(Mesh):
-#     """Cylinder object"""
+class CylinderM(Mesh):
+    """Cylinder object"""
 
-#     def __init__(self, shader, height, radius, slices=16):
-#         """
-#         Parameters:
-#         - shader: ModernGL Shader Program object
-#         - height: float
-#         - radius: float
-#         - slices: int, optional
-#         """
-#         self.height = height
-#         self.radius = radius
-#         self.slices = slices
+    def __init__(self, shader, height, radius, slices=16):
+        """
+        Parameters:
+        - shader: ModernGL Shader Program object
+        - height: float
+        - radius: float
+        - slices: int, optional
+        """
+        self.height = height
+        self.radius = radius
+        self.slices = slices
 
-#         # Create vertex data
-#         positions, normals = self.create_vertices()
-#         attributes = dict(position=positions, normal=normals)
+        # Create vertex data
+        positions = self.create_vertices()
+        attributes = dict(position=positions)
 
-#         super().__init__(shader, attributes=attributes)
+        super().__init__(shader, attributes=attributes)
 
-#     def create_vertices(self):
-#         """
-#         Create vertex positions and normals for the cylinder
-#         """
-#         positions = []
-#         normals = []
+    def create_vertices(self):
+        """
+        Create vertex positions for the cylinder
+        """
+        positions = []
 
-#         # Top and bottom faces
-#         for y in [-self.height/2, self.height/2]:
-#             for i in range(self.slices):
-#                 angle = 2 * np.pi * i / self.slices
-#                 x = self.radius * np.cos(angle)
-#                 z = self.radius * np.sin(angle)
+        # Top and bottom faces
+        for y in [-self.height/2, self.height/2]:
+            for i in range(self.slices):
+                angle = 2 * np.pi * i / self.slices
+                x = self.radius * np.cos(angle)
+                z = self.radius * np.sin(angle)
 
-#                 # Add position and normal for the vertex
-#                 positions.append([x, y, z])
-#                 normals.append([0, np.sign(y), 0])
+                # Add position for the vertex
+                positions.append([x, y, z])
 
-#         # Side faces
-#         for i in range(self.slices):
-#             angle1 = 2 * np.pi * i / self.slices
-#             angle2 = 2 * np.pi * (i + 1) / self.slices
-#             x1 = self.radius * np.cos(angle1)
-#             z1 = self.radius * np.sin(angle1)
-#             x2 = self.radius * np.cos(angle2)
-#             z2 = self.radius * np.sin(angle2)
+        # Side faces
+        for i in range(self.slices):
+            angle1 = 2 * np.pi * i / self.slices
+            angle2 = 2 * np.pi * (i + 1) / self.slices
+            x1 = self.radius * np.cos(angle1)
+            z1 = self.radius * np.sin(angle1)
+            x2 = self.radius * np.cos(angle2)
+            z2 = self.radius * np.sin(angle2)
 
-#             # Add positions and normals for the two vertices of the quad
-#             positions.append([x1, -self.height/2, z1])
-#             positions.append([x2, -self.height/2, z2])
-#             positions.append([x2, self.height/2, z2])
-#             positions.append([x1, self.height/2, z1])
-#             for j in range(4):
-#                 normals.append([x1+x2, 0, z1+z2])
+            # Add positions for the two vertices of the quad
+            positions.append([x1, -self.height/2, z1])
+            positions.append([x2, -self.height/2, z2])
+            positions.append([x2, self.height/2, z2])
+            positions.append([x1, self.height/2, z1])
 
-#         return np.array(positions, 'f'), np.array(normals, 'f')
+        return np.array(positions, 'f')
 
-#     def draw(self, primitives=GL.TRIANGLES, **uniforms):
-#         super().draw(primitives=primitives, **uniforms)
+    def draw(self, primitives=GL.GL_TRIANGLES, **uniforms):
+        super().draw(primitives=primitives, **uniforms)
 
-#     def key_handler(self, key):
-#         pass  # no key handler for cylinder object
+    def key_handler(self, key):
+        pass  # no key handler for cylinder object
 
 class Cylinder(Node):
     """ Very simple cylinder based on provided load function """
     def __init__(self, shader, light_dir):
         super().__init__()
         self.add(*load('cylinder.obj', shader, light_dir=light_dir))  # just load cylinder from file
+
+class Tronc(Node):
+    """ Very simple cylinder based on provided load function """
+    def __init__(self, shader, light_dir):
+        super().__init__()
+        self.add(*load('cylinder.obj', shader, light_dir=light_dir)) 
 
 class Monkey(Node):
     def __init__(self, shader, light_dir):
@@ -245,6 +265,7 @@ def main():
     """ create a window, add scene objects, then run rendering loop """
     viewer = Viewer()
     shader = Shader("texture.vert", "texture.frag")
+    shaderP = Shader("color.vert", "color.frag")
 
     shader_skybox = Shader("skybox.vert", "skybox.frag")
     viewer.add(Skybox(shader_skybox,["skybox/front.jpg", "skybox/back.jpg", "skybox/top.jpg", 
@@ -301,18 +322,35 @@ def main():
     # keynode.add(Monkey(shader, light_dir))
     # base.add(keynode)
     volcano_base.add(keynode)
-    # 
-    base = Node()
+
+    tronc = Tronc(shader, light_dir)
+    tronc_transf = Node(transform=scale(.1, 1, .1))
+    tronc_transf.add(tronc)
+
+    pir = Pyramid(shaderP)
+    pir_transf = Node(transform=translate(10, 10, 10) @ scale(1,.02,1))
+    pir_transf.add(pir)
+
+    # text = Texture("lava.jpg")
+    # pir_transf = Textured(drawable=pir, textures=text)
+
+    base_arbre = Node(transform=translate(0,0,0))
+    base_arbre.add(pir_transf)
+    base_arbre.add(tronc_transf)
+
+
+    base = Node(transform=translate(0,0,2))
     base.add(ter_transf)
     base.add(volcano_base)
+    base.add(base_arbre)
 
-    player = Player(shader, light_dir)
-    player_transf = Node(transform=translate(.0, -.6, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
-    player_transf.add(player)
-    
+    # player = Player(shader, light_dir)
+    # player_transf = Node(transform=translate(.0, -.6, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
+    # player_transf.add(player)
 
+    # viewer.add(CylinderM(shader, 5, 0.5, 128))
     viewer.add(base)
-    viewer.add(player_transf)    
+    # viewer.add(player_transf)    
 
     viewer.add(PointAnimation(shader))
     # if len(sys.argv) != 2:
