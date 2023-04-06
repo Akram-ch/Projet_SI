@@ -106,7 +106,28 @@ class Pyramid(Mesh):
 
     def draw(self, primitives=GL.GL_TRIANGLES, attributes=None, **uniforms):
         return super().draw(primitives, attributes, **uniforms)
+
         
+class PyramidN(Mesh):
+    """ Class for drawing a pyramid object """
+    def __init__(self, shader, x, y, z_size):
+        # x = 0
+        # y = -5
+        position = np.array(((-.5+x, 0+y, .5), (-.5+x, 0+y, -.5), (.5+x, 0+y, .5), (.5+x, 0+y, -.5), (0+x, z_size+y, 0)), 'f')
+        # position = np.array(((-1, 0, 0),(0, 1, 0), (1, 0, 0), (0, 0, 1), (0, -1, 0),(0, 0, -1),(0, 2, 0)),'f')
+
+
+        col = (19/256,139/256,67/256)
+        color = np.array((col, col, col, col, col), 'f')
+        index = np.array((0,1,2,2,1,3,4,1,0,4,3,1,4,2,3,4,0,2), np.uint32)
+
+        attributes = dict(position=position, color=color)
+        super().__init__(shader, attributes=attributes, index=index)
+
+    def draw(self, primitives=GL.GL_TRIANGLES, attributes=None, **uniforms):
+        return super().draw(primitives, attributes, **uniforms)
+
+
 class CylinderM(Mesh):
     """Cylinder object"""
 
@@ -243,7 +264,7 @@ class PointAnimation(Mesh):
         GL.glPointSize(5)
 
         # instantiate and store 4 points to animate
-        self.coords = tuple((random.uniform(-3.25, -2.75), random.uniform(-2,0 ), random.uniform(-2, 0)) for _ in range(300))
+        self.coords = tuple((random.uniform(-3.25, -2.75), random.uniform(-2,0 ), random.uniform(-0.5, 1.5)) for _ in range(300))
 
         # send as position attribute to GPU, set uniform variable global_color.
         # GL_STREAM_DRAW tells OpenGL that attributes of this object
@@ -323,20 +344,16 @@ def main():
     # base.add(keynode)
     volcano_base.add(keynode)
 
-    tronc = Tronc(shader, light_dir)
-    tronc_transf = Node(transform=scale(.1, 1, .1))
-    tronc_transf.add(tronc)
+
 
     pir = Pyramid(shaderP)
     pir_transf = Node(transform=translate(10, 10, 10) @ scale(1,.02,1))
     pir_transf.add(pir)
 
-    # text = Texture("lava.jpg")
-    # pir_transf = Textured(drawable=pir, textures=text)
 
     base_arbre = Node(transform=translate(0,0,0))
     base_arbre.add(pir_transf)
-    base_arbre.add(tronc_transf)
+
 
 
     base = Node(transform=translate(0,0,2))
@@ -351,6 +368,9 @@ def main():
     # viewer.add(CylinderM(shader, 5, 0.5, 128))
     viewer.add(base)
     # viewer.add(player_transf)    
+    viewer.add(PyramidN(shaderP, 0, -3.5, 2))
+    viewer.add(PyramidN(shaderP, 0, -2.5, 2))
+    viewer.add(PyramidN(shaderP, 0, -1.5, 2))
 
     viewer.add(PointAnimation(shader))
     # if len(sys.argv) != 2:
