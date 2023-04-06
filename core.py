@@ -163,6 +163,7 @@ class Mesh:
         self.vertex_array.execute(primitives, attributes)
 
 
+
 # ------------  Node is the core drawable for hierarchical scene graphs -------
 class Node:
     """ Scene graph transform and parameter broadcast node """

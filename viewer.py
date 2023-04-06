@@ -4,12 +4,15 @@ from itertools import cycle
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import OpenGL.GLUT as glut
 import PIL.Image as Image
-import glfw                         # lean window system wrapper for OpenGL
+import glfw         
+import random
+# lean window system wrapper for OpenGL
 import numpy as np                  # all matrix manipulations & OpenGL args
 from core import Shader, Viewer, Mesh, Node, load
 from transform import *
 from texture import Texture, Textured
 from texture import *
+
 from animation import *
 
 
@@ -213,6 +216,30 @@ class Skybox(CubeMapTextured):
             self.textures.update(diffuse_map=texture)
 
 
+class PointAnimation(Mesh):
+    """ Simple animated particle set """
+    def __init__(self, shader):
+        # render points with wide size to be seen
+        GL.glPointSize(5)
+
+        # instantiate and store 4 points to animate
+        self.coords = tuple((random.uniform(-3.25, -2.75), random.uniform(-2,0 ), random.uniform(-2, 0)) for _ in range(300))
+
+        # send as position attribute to GPU, set uniform variable global_color.
+        # GL_STREAM_DRAW tells OpenGL that attributes of this object
+        # will change on a per-frame basis (as opposed to GL_STATIC_DRAW)
+        super().__init__(shader, attributes=dict(position=self.coords),
+                         usage=GL.GL_STREAM_DRAW, global_color=(0.8, 0, 0))
+
+    def draw(self, primitives=GL.GL_POINTS, attributes=None, **uniforms):
+        # compute a sinusoidal x-coord displacement, different for each point.
+        # this could be any per-point function: build your own particle system!
+        dp = [[np.sin(i + glfw.get_time()), 0, 0] for i in range(len(self.coords))]
+
+        # update position buffer on CPU, send to GPU attribute to draw with it
+        coords = np.array(self.coords, 'f') + np.array(dp, 'f')
+        super().draw(primitives, attributes=dict(position=coords), **uniforms)
+        
 # -------------- main program and scene setup --------------------------------
 def main():
     """ create a window, add scene objects, then run rendering loop """
@@ -287,6 +314,7 @@ def main():
     viewer.add(base)
     viewer.add(player_transf)    
 
+    viewer.add(PointAnimation(shader))
     # if len(sys.argv) != 2:
     #     print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
     #           ' format supported by assimp.' % (sys.argv[0],))
