@@ -152,7 +152,7 @@ def main():
     volc_transf_1.add(volc)
 
     player = Player(shader, light_dir)
-    player_transf = Node(transform=translate(.0, .0, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
+    player_transf = Node(transform=translate(.0, -.6, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
     player_transf.add(player)
   
     base = Node()
