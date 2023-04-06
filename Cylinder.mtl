@@ -1,4 +1,4 @@
-newmtl STL
+newmtl lava
   Ns 10.0000
   Ni 1.5000
   d 1.0000
@@ -9,4 +9,4 @@ newmtl STL
   Kd 1.0 1.0 1.00
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-map_Kd rock.png
+map_Kd lava.jpg

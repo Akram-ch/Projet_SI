@@ -86,6 +86,69 @@ class Player(Node):
         else:
             self.transform=self.transform
         
+# class Cylinder(Mesh):
+#     """Cylinder object"""
+
+#     def __init__(self, shader, height, radius, slices=16):
+#         """
+#         Parameters:
+#         - shader: ModernGL Shader Program object
+#         - height: float
+#         - radius: float
+#         - slices: int, optional
+#         """
+#         self.height = height
+#         self.radius = radius
+#         self.slices = slices
+
+#         # Create vertex data
+#         positions, normals = self.create_vertices()
+#         attributes = dict(position=positions, normal=normals)
+
+#         super().__init__(shader, attributes=attributes)
+
+#     def create_vertices(self):
+#         """
+#         Create vertex positions and normals for the cylinder
+#         """
+#         positions = []
+#         normals = []
+
+#         # Top and bottom faces
+#         for y in [-self.height/2, self.height/2]:
+#             for i in range(self.slices):
+#                 angle = 2 * np.pi * i / self.slices
+#                 x = self.radius * np.cos(angle)
+#                 z = self.radius * np.sin(angle)
+
+#                 # Add position and normal for the vertex
+#                 positions.append([x, y, z])
+#                 normals.append([0, np.sign(y), 0])
+
+#         # Side faces
+#         for i in range(self.slices):
+#             angle1 = 2 * np.pi * i / self.slices
+#             angle2 = 2 * np.pi * (i + 1) / self.slices
+#             x1 = self.radius * np.cos(angle1)
+#             z1 = self.radius * np.sin(angle1)
+#             x2 = self.radius * np.cos(angle2)
+#             z2 = self.radius * np.sin(angle2)
+
+#             # Add positions and normals for the two vertices of the quad
+#             positions.append([x1, -self.height/2, z1])
+#             positions.append([x2, -self.height/2, z2])
+#             positions.append([x2, self.height/2, z2])
+#             positions.append([x1, self.height/2, z1])
+#             for j in range(4):
+#                 normals.append([x1+x2, 0, z1+z2])
+
+#         return np.array(positions, 'f'), np.array(normals, 'f')
+
+#     def draw(self, primitives=GL.TRIANGLES, **uniforms):
+#         super().draw(primitives=primitives, **uniforms)
+
+#     def key_handler(self, key):
+#         pass  # no key handler for cylinder object
 
 class Cylinder(Node):
     """ Very simple cylinder based on provided load function """
@@ -219,8 +282,8 @@ def main():
     player = Player(shader, light_dir)
     player_transf = Node(transform=translate(.0, -.6, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
     player_transf.add(player)
-  
     
+
     viewer.add(base)
     viewer.add(player_transf)    
 
