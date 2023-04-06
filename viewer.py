@@ -60,6 +60,29 @@ class Volcano(Node):
         self.add(*load('volcano-3d-model/Volcano.obj', shader, light_dir=light_dir))
         
 
+
+class Player(Node):
+    def __init__(self, shader, light_dir):
+        super().__init__()
+        self.add(*load('cat.obj', shader, light_dir=light_dir))
+    def key_handler(self, key):
+        if key==glfw.KEY_D:
+            self.transform = self.transform @ translate(.5, 0, 0)
+        elif key==glfw.KEY_A :
+            self.transform = self.transform @ translate(-.5, 0, 0)
+        elif key==glfw.KEY_Z :
+            self.transform = self.transform @ translate (0, .5, 0)
+        elif key==glfw.KEY_S: 
+            self.transform = self.transform @ translate (0, -.5, 0)
+        elif key==glfw.KEY_DOWN :
+            self.transform = self.transform @ rotate(axis=(1,0,0), angle=5)
+        elif key==glfw.KEY_UP :
+            self.transform = self.transform @ rotate(axis=(1,0,0), angle=-5)
+
+        else:
+            self.transform=self.transform
+        
+
 class Cylinder(Node):
     """ Very simple cylinder based on provided load function """
     def __init__(self, shader):
@@ -67,9 +90,9 @@ class Cylinder(Node):
         self.add(*load('cylinder.obj', shader))  # just load cylinder from file
 
 class Monkey(Node):
-    def __init__(self, shader):
+    def __init__(self, shader, light_dir):
         super().__init__()
-        self.add(*load('suzanne.obj', shader))
+        self.add(*load('suzanne.obj', shader=shader, light_dir=light_dir))
     
 class Skybox(CubeMapTextured):
     """ True skybox that is perceived at infinity """
@@ -125,24 +148,30 @@ def main():
     ter_transf.add(ter)
 
     volc = Volcano(shader, light_dir)
-    volc_transf_1 = Node(transform=scale(.1, .1, .1) @ translate(-8, -9, -2))
+    volc_transf_1 = Node(transform=scale(.2, .2, .2) @ translate(-8, -9, -2))
     volc_transf_1.add(volc)
 
+    player = Player(shader, light_dir)
+    player_transf = Node(transform=translate(.0, .0, -2) @ scale(.01, .01, .01) @ rotate(axis=(1., 0., 0.) , angle= -90))
+    player_transf.add(player)
+  
     base = Node()
     base.add(ter_transf)
     base.add(volc_transf_1)
+    
+    
 
 
-    translate_keys = {0: vec(0, -.50, 0), 2: vec(1, -.5, 0), 6: vec(0, -.5, 0)}
+    translate_keys = {0: vec(0, -.50, 0), 2: vec(0, 0, 0), 6: vec(0, 1, 0)}
     rotate_keys = {0: quaternion(), 2: quaternion_from_euler(180, 45, 90),
                    3: quaternion_from_euler(180, 0, 180), 6: quaternion()}
     scale_keys = {0: .1, 2: 0.2, 6: .3}
-    keynode = KeyFrameControlNode(translate_keys, rotate_keys, scale_keys)
-    keynode.add(Monkey(shader))
+    keynode = KeyFrameControlNode(translate_keys, rotate_keys, scale_keys, transform=scale(.1 , .1, .1))
+    keynode.add(Monkey(shader, light_dir))
     base.add(keynode)
 
     viewer.add(base)
-    
+    viewer.add(player_transf)    
 
     # if len(sys.argv) != 2:
     #     print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
