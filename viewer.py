@@ -78,6 +78,10 @@ class Player(Node):
             self.transform = self.transform @ rotate(axis=(1,0,0), angle=5)
         elif key==glfw.KEY_UP :
             self.transform = self.transform @ rotate(axis=(1,0,0), angle=-5)
+        elif key==glfw.KEY_RIGHT :
+            self.transform = self.transform @ rotate(axis=(0,1,0), angle=5)
+        elif key==glfw.KEY_LEFT :
+            self.transform = self.transform @ rotate(axis=(0,1,0), angle=-5)
 
         else:
             self.transform=self.transform
@@ -93,7 +97,27 @@ class Monkey(Node):
     def __init__(self, shader, light_dir):
         super().__init__()
         self.add(*load('suzanne.obj', shader=shader, light_dir=light_dir))
-    
+    def key_handler(self, key):
+        if key==glfw.KEY_D:
+            self.transform = self.transform @ translate(.5, 0, 0)
+        elif key==glfw.KEY_A :
+            self.transform = self.transform @ translate(-.5, 0, 0)
+        elif key==glfw.KEY_Z :
+            self.transform = self.transform @ translate (0, .5, 0)
+        elif key==glfw.KEY_S: 
+            self.transform = self.transform @ translate (0, -.5, 0)
+        elif key==glfw.KEY_DOWN :
+            self.transform = self.transform @ rotate(axis=(1,0,0), angle=5)
+        elif key==glfw.KEY_UP :
+            self.transform = self.transform @ rotate(axis=(1,0,0), angle=-5)
+        elif key==glfw.KEY_RIGHT :
+            self.transform = self.transform @ rotate(axis=(0,1,0), angle=5)
+        elif key==glfw.KEY_LEFT :
+            self.transform = self.transform @ rotate(axis=(0,1,0), angle=-5)
+
+
+        else:
+            self.transform=self.transform
 class Skybox(CubeMapTextured):
     """ True skybox that is perceived at infinity """
 
